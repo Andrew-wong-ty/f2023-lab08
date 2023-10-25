@@ -7,11 +7,11 @@ const client = new ImageAnnotatorClient();
  * @param fileNames - An array of file names to run logo detection on.
  * @returns void
  */
-function main (fileNames: string[]): void {
-    fileNames.forEach((fileName: string) => {
-        console.log(`Running logo detection on ${fileName}`);
-        client.logoDetection(fileName)
-        .then(([result]) => {
+async function main (fileNames: string[]): Promise<void> {
+    for (const fileName of fileNames) {
+        try {
+            console.log(`Running logo detection on ${fileName}`);
+            const [result] = await client.logoDetection(fileName);
             let scores: number[] = [];
             const logos = result.logoAnnotations;
             logos?.forEach((logo) => {
@@ -22,12 +22,11 @@ function main (fileNames: string[]): void {
             });
             const avg = scores.reduce((a, b) => a + b) / scores.length;
             console.log(`Average score for ${fileName}: ${avg}`);
-        })
-        .catch((err) => {
+        } catch (err:any) {
             if (err.code === 'ENOENT')
                 console.log(`File ${fileName} not found`);
-        });
-    });
+        }
+    }
 }
 
 main([
